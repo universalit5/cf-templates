@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Creates S3 bucket"
+
+Resources:
+    S3Bucket: # logical id/name
+        Type: AWS::S3::Bucket # type of resource
+        Properties:
+            BucketName: mys3bucket
+
+Outputs:
+    BucketName:
+        Value: !Ref 'S3Bucket'  # This is how we access value of a logical id
