@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This template will create EC2 Instance with Userdata
+Resources:
+  InstanceSecurityGroup:
+      Type: AWS::EC2::SecurityGroup
+      Properties:
+        GroupDescription: This group will allow all HTTP and SSH traffic
+        GroupName: AllowAllTraffic
+        SecurityGroupIngress:
+          - IpProtocol: tcp
+            FromPort: 80
+            ToPort: 80
+            CidrIp: 0.0.0.0/0
+          - IpProtocol: tcp
+            FromPort: 22
+            ToPort: 22
+            CidrIp: 0.0.0.0/0
+
+  UbuntuInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: "ami-04505e74c0741db8d"
+      InstanceType: t2.micro
+      KeyName: mykeypair
+      Tags:
+        - Key: Name
+          Value: "Ubuntu"
+      SecurityGroupIds:
+        - !Ref InstanceSecurityGroup
+      UserData:
+        Fn::Base64: # passes base64 representation of data to ec2 instance in encoded format
+          !Sub |
+            #!/bin/bash
+            sudo apt-get update -y
+            sudo apt-get install -y apache2
+            sudo ufw allow -y 'Apache'
+            sudo systemctl start apache2
+            sudo systemctl enable apache2
+            echo Hello World from $(hostname -f) > /var/www/html/index.html
+
+
+Outputs:
+  outputUbuntuInstance:
+    Description: A reference to the created EC2 Instance
+    Value: !Ref UbuntuInstance
